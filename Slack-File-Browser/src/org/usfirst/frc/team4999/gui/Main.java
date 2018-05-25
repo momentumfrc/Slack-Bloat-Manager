@@ -18,6 +18,8 @@ public class Main {
 		window.add(mode, BorderLayout.WEST);
 		window.add(mode.getSelected(), BorderLayout.CENTER);
 		
+		window.pack();
+		
 		window.setVisible(true);
 		
 	}
