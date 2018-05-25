@@ -1,0 +1,4 @@
+<?php
+  $app_dir = "";
+  $oauth_token = "";
+ ?>
