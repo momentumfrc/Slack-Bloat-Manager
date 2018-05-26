@@ -49,4 +49,40 @@ function listAllFiles() {
   }
 }
 
+/**
+* Queries slack api for a list of channels within the team
+* @param int $limit Number of items to return
+* @param string $cursor The cursor used to paginate through the list of channels
+*/
+function listChannels($limit, $cursor="none") {
+  global $oauth_token;
+  $opt = array(
+    "token"=>$oauth_token,
+    "exclude_archived"=>true,
+    "exclude_members"=>true,
+    "limit"=>$limit
+  );
+  if($cursor != "none") {
+    $opt["cursor"] = $cursor;
+  }
+  return json_decode(get_query_slack("https://slack.com/api/channels.list",$opts));
+}
+
+function listAllChannels() {
+  $cursor = "none";
+  $channels = array();
+  while(true) {
+    $response = listChannels(20, $cursor);
+    if(!$response["ok"]) {
+      die("Error listing channels. Response: ".json_encode($response));
+    }
+    $channels = array_merge($channels, $response["channels"]);
+    if(empty($response["response_metadata"]["next_cursor"])) {
+      return $channels;
+    } else {
+      $cursor = $response["response_metadata"]["next_cursor"];
+    }
+  }
+}
+
 ?>
