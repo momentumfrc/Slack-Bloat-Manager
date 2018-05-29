@@ -4,6 +4,15 @@ include_once("specificvars.php");
 global $oauth_token;
 
 /**
+* Gets the oauth token for the currently logged in user
+* @return string The oauth token for the current user
+*/
+function getOauth() {
+  global $oauth_token;
+  return $oauth_token;
+}
+
+/**
 * Preform a GET request on a specified url with the specified parameters
 * @param string $url The url to query
 * @param array $opts The url paramteters
@@ -25,8 +34,7 @@ function get_query_slack($url,$opts) {
 * @return array File objects representing every requested file
 */
 function listFiles($count, $page) {
-  global $oauth_token;
-  return json_decode(get_query_slack("https://slack.com/api/files.list",array("token"=>$oauth_token,"count"=>$count,"page"=>$page)), true);
+  return json_decode(get_query_slack("https://slack.com/api/files.list",array("token"=>getOauth(),"count"=>$count,"page"=>$page)), true);
 }
 
 /**
@@ -53,11 +61,11 @@ function listAllFiles() {
 * Queries slack api for a list of channels within the team
 * @param int $limit Number of items to return
 * @param string $cursor The cursor used to paginate through the list of channels
+* @return array Channel objects representing the requested channels
 */
 function listChannels($limit, $cursor="none") {
-  global $oauth_token;
   $opt = array(
-    "token"=>$oauth_token,
+    "token"=>getOauth(),
     "exclude_archived"=>true,
     "exclude_members"=>true,
     "limit"=>$limit
@@ -68,6 +76,10 @@ function listChannels($limit, $cursor="none") {
   return json_decode(get_query_slack("https://slack.com/api/channels.list",$opts), true);
 }
 
+/**
+* Queries slack api for a list of all channels within the team
+* @return array Channel objects representing every channel in the team
+*/
 function listAllChannels() {
   $cursor = "none";
   $channels = array();
@@ -83,6 +95,15 @@ function listAllChannels() {
       $cursor = $response["response_metadata"]["next_cursor"];
     }
   }
+}
+
+/**
+* Deletes a file in the slack workspace
+* @param string $id The id of the file to delete
+* @return array The response from the slack api
+*/
+function deleteFile($id) {
+  return json_decode(get_query_slack("https://slack.com/api/files.delete", array("token"=>getOauth(),"file"=>$id)),true);
 }
 
 ?>
