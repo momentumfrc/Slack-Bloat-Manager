@@ -26,7 +26,7 @@ function get_query_slack($url,$opts) {
 */
 function listFiles($count, $page) {
   global $oauth_token;
-  return json_decode(get_query_slack("https://slack.com/api/files.list",array("token"=>$oauth_token,"count"=>$count,"page"=$page)));
+  return json_decode(get_query_slack("https://slack.com/api/files.list",array("token"=>$oauth_token,"count"=>$count,"page"=>$page)), true);
 }
 
 /**
@@ -65,7 +65,7 @@ function listChannels($limit, $cursor="none") {
   if($cursor != "none") {
     $opt["cursor"] = $cursor;
   }
-  return json_decode(get_query_slack("https://slack.com/api/channels.list",$opts));
+  return json_decode(get_query_slack("https://slack.com/api/channels.list",$opts), true);
 }
 
 function listAllChannels() {
