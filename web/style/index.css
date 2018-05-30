@@ -1,0 +1,31 @@
+@font-face{
+	font-family: "StormFaze";
+	src: url("../fonts/stormfaze.ttf");
+}
+body {
+	background-image: url("../photos/Slack-01.png");
+	background-attachment: fixed;
+	margin: 0px;
+}
+#container{
+	width: 60%;
+	margin: auto;
+	background-color: rgba(255, 255, 255, 0.8);
+	padding: 10px 25px;
+	min-height: 100%;
+	box-shadow: 0px 0px 10px 1px #06ceff;
+}
+h1 {
+	font-family: StormFaze, arial, sans-serif;
+  text-align: center;
+}
+table {
+  border-collapse: collapse;
+  margin: auto;
+}
+table, th, td {
+    border: 1px solid black;
+}
+td.checkbox {
+  text-align: center;
+}

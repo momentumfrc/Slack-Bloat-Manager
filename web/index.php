@@ -5,10 +5,30 @@ require_once('functions.php');
  ?>
 <html>
 <head>
+  <script src="scripts/jquery-3.3.1.min.js"></script>
+  <script src="scripts/index.js"></script>
+  <link rel="stylesheet" type="text/css" href="style/index.css">
 </head>
 <body>
-  <div id="navigator"><button id="openfiles">Files</button><button id="openchannels">Channels</button></div>
-  <div id="files">
+  <div id="container">
+    <h1>
+      <?php
+      $profile = getUserProfile();
+      if(isset($profile["ok"]) && $profile["ok"]) {
+        $profile = $profile["profile"];
+        if(isset($profile["first_name"])) {
+          echo($profile["first_name"]."'s ");
+        } elseif(isset($profile["real_name"])) {
+          echo($profile["real_name"]."'s ");
+        } elseif(isset($profile["display_name"])) {
+          echo($profile["display_name"]."'s ");
+        }
+      } else {
+        die("Error retrieving user info: ".json_encode($profile));
+      }
+      ?>
+      Files
+    </h1>
     <?php
     if($_SERVER["REQUEST_METHOD"] == "POST") {
       if(isset($_POST["delfiles"])) {
@@ -105,16 +125,17 @@ require_once('functions.php');
         foreach($files as $file) {
           echo('
           <tr>
-            <td>'.$file["title"].'</td>
+            <td><a href="'.$file["permalink"].'" target="_blank">'.$file["title"].'</a></td>
             <td>'.human_filesize($file["size"]).'</td>
             <td>'.date('M j, Y \a\t g:i A', $file["created"]).'</td>
-            <td><input type="checkbox" name="delfiles[]" value='.$file["id"].'></td>
+            <td class="checkbox"><input type="checkbox" name="delfiles[]" value='.$file["id"].'></td>
           </tr>
           ');
         }
          ?>
+         <tr><td colspan="3"></td><td><input type="submit" value="Delete"></td></tr>
       </table>
-      <input type="submit" value="Delete">
+
       <input type="hidden" name="page" value="<?php echo(htmlentities($page)); ?>">
       <input type="hidden" name="sort" value="<?php echo(htmlentities($sort)); ?>">
     </form>
@@ -126,8 +147,6 @@ require_once('functions.php');
       echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?page='.($page+1).'&sort='.$sort.'">next</a>');
     }
      ?>
-  </div>
-  <div id="channels">
   </div>
 </body>
 </html>

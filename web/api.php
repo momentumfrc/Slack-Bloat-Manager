@@ -106,4 +106,13 @@ function deleteFile($id) {
   return json_decode(get_query_slack("https://slack.com/api/files.delete", array("token"=>getOauth(),"file"=>$id)),true);
 }
 
+/**
+* Gets the slack user profile for the current user
+* @return array A profile object representing the currently logged in user
+*/
+function getUserProfile() {
+  return json_decode(get_query_slack("https://slack.com/api/users.profile.get", array("token"=>getOauth())),true);
+}
+
+
 ?>
