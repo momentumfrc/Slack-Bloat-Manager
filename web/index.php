@@ -59,15 +59,7 @@ require_once('functions.php');
     } elseif($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["sort"])) {
       $sort = $_POST["sort"];
     } else {
-      $sort = "newest";
-    }
-    # See if the user specified a page, defaulting to page 1
-    if(isset($_GET["page"])) {
-      $page = $_GET["page"];
-    } elseif($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["page"])) {
-      $page = $_POST["page"];
-    }else {
-      $page = 1;
+      $sort = "biggest";
     }
 
      ?>
@@ -78,31 +70,28 @@ require_once('functions.php');
           <th>
             <?php
             if($sort == "biggest") {
-              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?page='.$page.'&sort=smallest">Size&#9660;</a>');
+              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?sort=smallest">Size&#9660;</a>');
             } elseif($sort == "smallest") {
-              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?page='.$page.'&sort=biggest">Size&#9650;</a>');
+              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?sort=biggest">Size&#9650;</a>');
             } else {
-              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?page='.$page.'&sort=biggest">Size</a>');
+              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?sort=biggest">Size</a>');
             }
             ?>
           </th>
           <th>
             <?php
             if($sort == "oldest") {
-              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?page='.$page.'&sort=newest">Date&#9660;</a>');
+              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?sort=newest">Date&#9660;</a>');
             } elseif($sort == "newest") {
-              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?page='.$page.'&sort=oldest">Date&#9650;</a>');
+              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?sort=oldest">Date&#9650;</a>');
             } else {
-              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?page='.$page.'&sort=oldest">Date</a>');
+              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?sort=oldest">Date</a>');
             }
             ?>
           </th>
           <th>Delete?</th>
         </tr>
         <?php
-        # Limit number of results per page. Might make this configurable by the user in the future
-        $limit = 50;
-
 
         $files = listAllFiles();
 
@@ -110,19 +99,15 @@ require_once('functions.php');
         switch($sort) {
           case "newest":
             usort($files, "compare_newest");
-            $files = array_slice($files, ($page-1)*$limit, $limit);
             break;
           case "oldest":
             usort($files, "compare_oldest");
-            $files = array_slice($files, ($page-1)*$limit, $limit);
             break;
           case "biggest":
             usort($files, "compare_biggest");
-            $files = array_slice($files, ($page-1)*$limit, $limit);
             break;
           case "smallest":
             usort($files, "compare_smallest");
-            $files = array_slice($files, ($page-1)*$limit, $limit);
             break;
         }
 
@@ -144,17 +129,8 @@ require_once('functions.php');
          <tr><td colspan="3"></td><td><input type="submit" value="Delete"></td></tr>
       </table>
 
-      <input type="hidden" name="page" value="<?php echo(htmlentities($page)); ?>">
       <input type="hidden" name="sort" value="<?php echo(htmlentities($sort)); ?>">
     </form>
-    <?php
-    if($page > 1) {
-      echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?page='.($page-1).'&sort='.$sort.'">prev</a>');
-    }
-    if(isset($files["paging"]) && $files["paging"]["pages"] > $page) {
-      echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?page='.($page+1).'&sort='.$sort.'">next</a>');
-    }
-     ?>
   </div>
 </body>
 </html>
