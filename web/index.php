@@ -13,6 +13,11 @@ require_once('functions.php');
   <div id="container">
     <h1>
       <?php
+
+      if(!isset($_SESSION["oauth_token"])) {
+        header("Location: login.php");
+      }
+
       $profile = getUserProfile();
       if(isset($profile["ok"]) && $profile["ok"]) {
         $profile = $profile["profile"];
@@ -24,6 +29,9 @@ require_once('functions.php');
           echo($profile["display_name"]."'s ");
         }
       } else {
+        if(isset($profile["error"]) && $profile["error"] == "not_authed") {
+          header("Location: login.php");
+        }
         die("Error retrieving user info: ".json_encode($profile));
       }
       ?>

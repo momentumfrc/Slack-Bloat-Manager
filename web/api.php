@@ -8,8 +8,14 @@ global $oauth_token;
 * @return string The oauth token for the current user
 */
 function getOauth() {
-  global $oauth_token;
-  return $oauth_token;
+  if(session_status() == PHP_SESSION_NONE) {
+		session_start();
+	}
+  if(isset($_SESSION["oauth_token"])) {
+    return $_SESSION["oauth_token"];
+  } else {
+    return false;
+  }
 }
 
 /**
@@ -114,5 +120,20 @@ function getUserProfile() {
   return json_decode(get_query_slack("https://slack.com/api/users.profile.get", array("token"=>getOauth())),true);
 }
 
+/**
+* Exchanges a verification code for an acess token
+* @see https://api.slack.com/docs/oauth
+* @param string $code A temporary authorization code
+* @return array The access token and scopes
+*/
+function getTokenFromVerificationCode($code) {
+  global $client_id, $client_secret;
+  $data = array(
+    "client_id"=>$client_id,
+    "client_secret"=>$client_secret,
+    "code"=>$code
+  );
+  return json_decode(get_query_slack("https://slack.com/api/oauth.access",$data),true);
+}
 
 ?>
