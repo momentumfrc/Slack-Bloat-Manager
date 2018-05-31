@@ -55,7 +55,7 @@ require_once('functions.php');
     }
 
      ?>
-    <form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="post">
+    <form id="mainf" action="<?php echo(htmlentities($_SERVER['PHP_SELF']) . '?sort='.htmlentities($sort).''); ?>" method="post">
       <table>
         <tr>
           <th>Owner</th>
@@ -166,8 +166,6 @@ require_once('functions.php');
            <?php if($hasErrorRow) { echo("<td></td>"); } ?>
          </tr>
       </table>
-
-      <input type="hidden" name="sort" value="<?php echo(htmlentities($sort)); ?>">
     </form>
   </div>
 </body>
