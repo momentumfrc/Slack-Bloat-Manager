@@ -66,8 +66,6 @@ require_once('functions.php');
           $response = deleteFile($fileid);
           if(!(isset($response["ok"]) && $response["ok"])) {
             $errorFiles[$fileid] = $response["error"];
-          } else {
-            echo("Error deleting file: ".json_encode($response));
           }
         }
       }
@@ -141,7 +139,11 @@ require_once('functions.php');
 
         $uids = array();
 
+        $totalbytes = 0;
+
         foreach($files as $file) {
+          $totalbytes += $file["size"];
+
           if(!isset($uids[$file["user"]])) {
             $uprofile = getUserProfile($file["user"]);
             if(isset($uprofile["ok"]) && $uprofile["ok"]) {
@@ -179,6 +181,8 @@ require_once('functions.php');
               case "cant_delete_file":
                 echo("Insufficient permissions");
                 break;
+              case "ratelimited":
+                echo("Exceeded rate limit (try again)");
               default:
                 echo($errorFiles[$file["id"]]);
                 break;
@@ -191,7 +195,9 @@ require_once('functions.php');
         }
          ?>
          <tr>
-           <td colspan="4"></td>
+           <td colspan="2"></td>
+           <td><span id="totalsize">Total:</span> <?php echo(human_filesize($totalbytes)); ?></td>
+           <td></td>
            <td><input type="submit" value="Delete"></td>
            <?php if($hasErrorRow) { echo("<td></td>"); } ?>
          </tr>
