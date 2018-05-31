@@ -82,7 +82,7 @@ require_once('functions.php');
             }
             ?>
           </th>
-          <th>Delete?</th>
+          <th id="selectall">Delete?</th>
           <?php
           $hasErrorRow = count($errorFiles) != 0;
           if($hasErrorRow) {

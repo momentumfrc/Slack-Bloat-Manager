@@ -32,3 +32,16 @@ td.checkbox {
 tr.erroredfile {
 	background: #ff8686;
 }
+a {
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+#selectall {
+	color: blue;
+}
+#selectall:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}
