@@ -38,10 +38,24 @@ a {
 a:hover {
 	text-decoration: underline;
 }
+a.userlink {
+	color: black;
+}
 #selectall {
 	color: blue;
 }
 #selectall:hover {
 	text-decoration: underline;
 	cursor: pointer;
+}
+#allusers {
+	font-family: StormFaze, arial, sans-serif;
+  text-align: center;
+	color: black;
+	text-decoration: none;
+	display: block;
+	margin: 10px 0px;
+}
+#allusers:hover {
+	text-decoration: underline;
 }

@@ -11,26 +11,54 @@ require_once('functions.php');
 </head>
 <body>
   <div id="container">
-    <h1>
-      <?php
+    <h1><?php
 
+      # Log in if not logged in
       if(!isset($_SESSION["oauth_token"])) {
         header("Location: login.php");
       }
 
-      $profile = getCurrentUserProfile();
-      if(isset($profile["ok"]) && $profile["ok"]) {
-        echo(getName($profile["profile"])."'s ");
+      # Get user parameter, defaulting to currently logged in user
+      if(isset($_GET["user"])) {
+        $filteruser = $_GET["user"];
       } else {
-        if(isset($profile["error"]) && $profile["error"] == "not_authed") {
+        $authdata = getAuthData();
+        if(isset($authdata["ok"]) && $authdata["ok"]) {
+          $filteruser = $authdata["user_id"];
+        } elseif(isset($authdata["error"]) && $authdata["error"] == "not_authed") {
           header("Location: login.php");
         }
-        die("Error retrieving user info: ".json_encode($profile));
       }
-      ?>
-      Files
+
+      # Get the sort parameter, defaulting to biggest
+      if(isset($_GET["sort"])) {
+        $sort = htmlentities($_GET["sort"]);
+      }  else {
+        $sort = "biggest";
+      }
+
+      # Print the filtered user in the title
+      if($filteruser == "all") {
+        echo("All ");
+      } else {
+        $profile = getUserProfile($filteruser);
+        if(isset($profile["ok"]) && $profile["ok"]) {
+          echo(getName($profile["profile"])."'s ");
+        } else {
+          if(isset($profile["error"]) && $profile["error"] == "not_authed") {
+            header("Location: login.php");
+          }
+          die("Error retrieving user info: ".json_encode($profile));
+        }
+      }
+      ?>Files
     </h1>
     <?php
+
+    if($filteruser != "all") {
+      echo('<a id="allusers" href="'.htmlentities($_SERVER['PHP_SELF']).'?user=all&sort='.$sort.'">View all files</a>');
+    }
+
     $errorFiles = array();
     if($_SERVER["REQUEST_METHOD"] == "POST") {
       if(isset($_POST["delfiles"])) {
@@ -46,16 +74,10 @@ require_once('functions.php');
 
     }
 
-    if(isset($_GET["sort"])) {
-      $sort = htmlentities($_GET["sort"]);
-    } elseif($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["sort"])) {
-      $sort = $_POST["sort"];
-    } else {
-      $sort = "biggest";
-    }
+
 
      ?>
-    <form id="mainf" action="<?php echo(htmlentities($_SERVER['PHP_SELF']) . '?sort='.htmlentities($sort).''); ?>" method="post">
+    <form id="mainf" action="<?php echo(htmlentities($_SERVER['PHP_SELF']) . '?user='.htmlentities($filteruser).'&sort='.$sort); ?>" method="post">
       <table>
         <tr>
           <th>Owner</th>
@@ -63,22 +85,22 @@ require_once('functions.php');
           <th>
             <?php
             if($sort == "biggest") {
-              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?sort=smallest">Size&#9660;</a>');
+              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?user='.htmlentities($filteruser).'&sort=smallest">Size&#9660;</a>');
             } elseif($sort == "smallest") {
-              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?sort=biggest">Size&#9650;</a>');
+              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?user='.htmlentities($filteruser).'&sort=biggest">Size&#9650;</a>');
             } else {
-              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?sort=biggest">Size</a>');
+              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?user='.htmlentities($filteruser).'&sort=biggest">Size</a>');
             }
             ?>
           </th>
           <th>
             <?php
             if($sort == "oldest") {
-              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?sort=newest">Date&#9660;</a>');
+              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?user='.htmlentities($filteruser).'&sort=newest">Date&#9660;</a>');
             } elseif($sort == "newest") {
-              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?sort=oldest">Date&#9650;</a>');
+              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?user='.htmlentities($filteruser).'&sort=oldest">Date&#9650;</a>');
             } else {
-              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?sort=oldest">Date</a>');
+              echo('<a href="'.htmlentities($_SERVER["PHP_SELF"]).'?user='.htmlentities($filteruser).'&sort=oldest">Date</a>');
             }
             ?>
           </th>
@@ -90,8 +112,12 @@ require_once('functions.php');
           } ?>
         </tr>
         <?php
+        if($filteruser == "all") {
+          $files = listAllFiles();
+        } else {
+          $files = listAllFilesForUser($filteruser);
+        }
 
-        $files = listAllFiles();
 
 
         switch($sort) {
@@ -130,8 +156,12 @@ require_once('functions.php');
           } else {
             echo('<tr>');
           }
+          if($filteruser == "all") {
+            echo('<td><a class="userlink" href="'.htmlentities($_SERVER['PHP_SELF']).'?user='.$file["user"].'&sort='.$sort.'">'.$uids[$file["user"]].'</a></td>');
+          } else{
+            echo('<td>'.$uids[$file["user"]].'</td>');
+          }
           echo('
-            <td>'.$uids[$file["user"]].'</td>
             <td><a href="'.$file["permalink"].'" target="_blank">'.$file["title"].'</a></td>
             <td>'.human_filesize($file["size"]).'</td>
             <td>'.date('M j, Y \a\t g:i A', $file["created"]).'</td>

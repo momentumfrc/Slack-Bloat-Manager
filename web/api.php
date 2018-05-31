@@ -34,6 +34,23 @@ function get_query_slack($url,$opts) {
 }
 
 /**
+* Preform a POST request on a specified url with the specified parameters
+* @param string $url The url to query
+* @param array $opts The url paramteters
+* @return string The server's response
+*/
+function post_query_slack($url,$opts) {
+  $curl = curl_init();
+  curl_setopt($curl, CURLOPT_URL, $url);
+  curl_setopt($curl, CURLOPT_POST, true);
+  curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($opts));
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+  $data = curl_exec($curl);
+  curl_close($curl);
+  return $data;
+}
+
+/**
 * Queries slack api for a list of files within the team
 * @param int $count Number of items to return per page.
 * @param int $page Page number of results to return.
@@ -52,6 +69,27 @@ function listAllFiles() {
   $files = array();
   while(true) {
     $response = listFiles(20, $page);
+    if(!$response["ok"]) {
+      die("Error listing files. Response: ".json_encode($response));
+    }
+    $files = array_merge($files,$response["files"]);
+    $page = $response["paging"]["page"]+1;
+    if($page > $response["paging"]["pages"]) {
+      return $files;
+    }
+  }
+}
+
+/**
+* Queries slack api for a list of all files within the team
+* @param string $user The UID of the user to filter by
+* @return array File objects representing every file in the team
+*/
+function listAllFilesForUser($user) {
+  $page = 1;
+  $files = array();
+  while(true) {
+    $response = json_decode(get_query_slack("https://slack.com/api/files.list",array("token"=>getOauth(),"count"=>20,"page"=>$page,"user"=>$user)), true);
     if(!$response["ok"]) {
       die("Error listing files. Response: ".json_encode($response));
     }
@@ -141,6 +179,15 @@ function getTokenFromVerificationCode($code) {
     "code"=>$code
   );
   return json_decode(get_query_slack("https://slack.com/api/oauth.access",$data),true);
+}
+
+/**
+* Gets the authentication data of the currently logged in user
+* @see https://api.slack.com/methods/auth.test
+* @return array The current users' auth data
+*/
+function getAuthData() {
+  return json_decode(post_query_slack("https://slack.com/api/auth.test", array("token"=>getOauth())), true);
 }
 
 ?>
