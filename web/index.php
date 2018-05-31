@@ -18,16 +18,9 @@ require_once('functions.php');
         header("Location: login.php");
       }
 
-      $profile = getUserProfile();
+      $profile = getCurrentUserProfile();
       if(isset($profile["ok"]) && $profile["ok"]) {
-        $profile = $profile["profile"];
-        if(isset($profile["first_name"])) {
-          echo($profile["first_name"]."'s ");
-        } elseif(isset($profile["real_name"])) {
-          echo($profile["real_name"]."'s ");
-        } elseif(isset($profile["display_name"])) {
-          echo($profile["display_name"]."'s ");
-        }
+        echo(getName($profile["profile"])."'s ");
       } else {
         if(isset($profile["error"]) && $profile["error"] == "not_authed") {
           header("Location: login.php");
@@ -66,7 +59,8 @@ require_once('functions.php');
     <form action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>" method="post">
       <table>
         <tr>
-          <th>Name</th>
+          <th>Owner</th>
+          <th>Filename</th>
           <th>
             <?php
             if($sort == "biggest") {
@@ -115,9 +109,20 @@ require_once('functions.php');
           echo('<tr><td rowspan="3">No results!</td></tr>');
         }
 
+        $uids = array();
+
         foreach($files as $file) {
+          if(!isset($uids[$file["user"]])) {
+            $uprofile = getUserProfile($file["user"]);
+            if(isset($uprofile["ok"]) && $uprofile["ok"]) {
+              $uids[$file["user"]] = getName($uprofile["profile"], true);
+            } else {
+              die("Error retrieving user info: ".json_encode($uprofile));
+            }
+          }
           echo('
           <tr>
+            <td>'.$uids[$file["user"]].'</td>
             <td><a href="'.$file["permalink"].'" target="_blank">'.$file["title"].'</a></td>
             <td>'.human_filesize($file["size"]).'</td>
             <td>'.date('M j, Y \a\t g:i A', $file["created"]).'</td>

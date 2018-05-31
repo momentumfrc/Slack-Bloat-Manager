@@ -1,5 +1,8 @@
 <?php
 
+error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
+ini_set('display_errors', TRUE);
+
 date_default_timezone_set("America/Los_Angeles");
 
 /**
@@ -52,5 +55,22 @@ function compare_biggest($file1, $file2) {
 */
 function compare_smallest($file1, $file2) {
   return $file1["size"] - $file2["size"];
+}
+
+/**
+* Get a name from a user profile
+* @param array $user The profile to get a name from
+* @param boolean $full Whether or not to try to get the full name
+* @return string The user's name
+*/
+function getName($user, $full=false) {
+  if(isset($user["first_name"]) && !$full) {
+    return $user["first_name"];
+  } elseif(isset($user["real_name"])) {
+    return $user["real_name"];
+  } elseif(isset($user["display_name"])) {
+    return $user["display_name"];
+  }
+  return false;
 }
  ?>
