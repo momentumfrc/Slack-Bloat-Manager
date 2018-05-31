@@ -134,7 +134,11 @@ require_once('functions.php');
         }
 
         if(count($files) == 0 ) {
-          echo('<tr><td rowspan="3">No results!</td></tr>');
+          if($hasErrorRow) {
+            echo('<tr><td colspan="6">No results!</td></tr>');
+          } else {
+            echo('<tr><td colspan="5">No results!</td></tr>');
+          }
         }
 
         $uids = array();
