@@ -29,3 +29,6 @@ table, th, td {
 td.checkbox {
   text-align: center;
 }
+tr.erroredfile {
+	background: #ff8686;
+}

@@ -31,16 +31,15 @@ require_once('functions.php');
       Files
     </h1>
     <?php
+    $errorFiles = array();
     if($_SERVER["REQUEST_METHOD"] == "POST") {
       if(isset($_POST["delfiles"])) {
         foreach($_POST["delfiles"] as $fileid) {
           $response = deleteFile($fileid);
           if(!(isset($response["ok"]) && $response["ok"])) {
-            if($response["error"] == "file_deleted") {
-              echo("<p>File ".$fileid." already deleted</p>");
-            } else {
-              die("Error deleting file: ".json_encode($response));
-            }
+            $errorFiles[$fileid] = $response["error"];
+          } else {
+            echo("Error deleting file: ".json_encode($response));
           }
         }
       }
@@ -84,6 +83,11 @@ require_once('functions.php');
             ?>
           </th>
           <th>Delete?</th>
+          <?php
+          $hasErrorRow = count($errorFiles) != 0;
+          if($hasErrorRow) {
+            echo('<th>Error</th>');
+          } ?>
         </tr>
         <?php
 
@@ -120,18 +124,47 @@ require_once('functions.php');
               die("Error retrieving user info: ".json_encode($uprofile));
             }
           }
+          $errored = isset($errorFiles[$file["id"]]);
+          if($errored) {
+            echo('<tr class="erroredfile">');
+          } else {
+            echo('<tr>');
+          }
           echo('
-          <tr>
             <td>'.$uids[$file["user"]].'</td>
             <td><a href="'.$file["permalink"].'" target="_blank">'.$file["title"].'</a></td>
             <td>'.human_filesize($file["size"]).'</td>
             <td>'.date('M j, Y \a\t g:i A', $file["created"]).'</td>
-            <td class="checkbox"><input type="checkbox" name="delfiles[]" value='.$file["id"].'></td>
-          </tr>
-          ');
+            <td class="checkbox"><input type="checkbox" name="delfiles[]" value="'.$file["id"].'"');
+            if($errored) {
+              echo(' checked');
+            }
+          echo('></td>');
+          if($errored) {
+            echo("<td>");
+            switch($errorFiles[$file["id"]]) {
+              case "file_deleted":
+                echo("Already deleted");
+                break;
+              case "cant_delete_file":
+                echo("Insufficient permissions");
+                break;
+              default:
+                echo($errorFiles[$file["id"]]);
+                break;
+            }
+            echo("</td>");
+          } elseif($hasErrorRow) {
+            echo("<td></td>");
+          }
+          echo('</tr>');
         }
          ?>
-         <tr><td colspan="3"></td><td><input type="submit" value="Delete"></td></tr>
+         <tr>
+           <td colspan="4"></td>
+           <td><input type="submit" value="Delete"></td>
+           <?php if($hasErrorRow) { echo("<td></td>"); } ?>
+         </tr>
       </table>
 
       <input type="hidden" name="sort" value="<?php echo(htmlentities($sort)); ?>">
