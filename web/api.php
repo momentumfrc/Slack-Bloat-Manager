@@ -166,7 +166,7 @@ function getUserProfile($uid) {
 }
 
 /**
-* Exchanges a verification code for an acess token
+* Exchanges a verification code for an access token
 * @see https://api.slack.com/docs/oauth
 * @param string $code A temporary authorization code
 * @return array The access token and scopes
