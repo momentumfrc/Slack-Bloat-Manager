@@ -117,7 +117,7 @@ function listChannels($limit, $cursor="none") {
   if($cursor != "none") {
     $opt["cursor"] = $cursor;
   }
-  return json_decode(get_query_slack("https://slack.com/api/channels.list",$opts), true);
+  return json_decode(get_query_slack("https://slack.com/api/channels.list",$opt), true);
 }
 
 /**
@@ -139,6 +139,15 @@ function listAllChannels() {
       $cursor = $response["response_metadata"]["next_cursor"];
     }
   }
+}
+
+/**
+* Gets info about a channel
+* @param string $channel The channel to get info about
+* @return array A channel object containing the requested information
+*/
+function getChannelInfo($channel) {
+  return json_decode(get_query_slack("https://slack.com/api/channels.info", array("token"=>getOauth(),"channel"=>$channel)), true);
 }
 
 /**

@@ -18,7 +18,7 @@ if(isset($_GET["code"])) {
 
 $opts = array(
   "client_id"=>$client_id,
-  "scope"=>"files:read files:write:user users.profile:read"
+  "scope"=>"files:read files:write:user users.profile:read channels:read channels:write"
 );
 header("Location: https://slack.com/oauth/authorize?".http_build_query($opts));
  ?>
