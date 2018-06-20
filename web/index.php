@@ -10,6 +10,7 @@ session_start();
     header("Location: login.php");
   }
   ?>
+  <title>Slack Bloat Manager</title>
 </head>
 <body>
   <div id="container">

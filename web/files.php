@@ -35,27 +35,29 @@ require_once('functions.php');
       $sort = "biggest";
     }
 
+
+    # Format the filtered user's name'\
+    $titlestring = "";
+    if($filteruser == "all") {
+      $titlestring .= "All ";
+    } else {
+      $profile = getUserProfile($filteruser);
+      if(isset($profile["ok"]) && $profile["ok"]) {
+        $titlestring .= getName($profile["profile"])."'s ";
+      } else {
+        if(isset($profile["error"]) && $profile["error"] == "not_authed") {
+          header("Location: login.php");
+        }
+        die("Error retrieving user info: ".json_encode($profile));
+      }
+    }
+
   ?>
+  <title><?php echo($titlestring); ?>Files</title>
 </head>
 <body>
   <div id="container">
-    <h1><?php
-      # Print the filtered user in the title
-      if($filteruser == "all") {
-        echo("All ");
-      } else {
-        $profile = getUserProfile($filteruser);
-        if(isset($profile["ok"]) && $profile["ok"]) {
-          echo(getName($profile["profile"])."'s ");
-        } else {
-          if(isset($profile["error"]) && $profile["error"] == "not_authed") {
-            header("Location: login.php");
-          }
-          die("Error retrieving user info: ".json_encode($profile));
-        }
-      }
-      ?>Files
-    </h1>
+    <h1><?php echo($titlestring); ?>Files</h1>
     <?php
 
     if($filteruser != "all") {
